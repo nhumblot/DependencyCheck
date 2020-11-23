@@ -33,11 +33,9 @@ import org.owasp.dependencycheck.data.nvdcve.CveDB;
 import org.owasp.dependencycheck.dependency.Dependency;
 import org.owasp.dependencycheck.exception.InitializationException;
 import org.owasp.dependencycheck.processing.BundlerAuditProcessor;
-import org.owasp.dependencycheck.utils.processing.ExceptionStore;
 import org.owasp.dependencycheck.utils.FileFilterBuilder;
 import org.owasp.dependencycheck.utils.processing.ProcessReader;
 import org.owasp.dependencycheck.utils.Settings;
-import org.owasp.dependencycheck.utils.processing.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.springett.parsers.cpe.exceptions.CpeValidationException;
@@ -206,28 +204,22 @@ public class RubyBundleAuditAnalyzer extends AbstractFileTypeAnalyzer {
         }
         String bundleAuditVersionDetails = null;
         try {
-            final Store<String> outputStore = new Store<>();
-            final Store<String> errorStore = new Store<>();
-            final ExceptionStore<IOException> exceptionStore = new ExceptionStore<>();
-
             final List<String> bundleAuditArgs = ImmutableList.of("version");
             final Process process = launchBundleAudit(getSettings().getTempDirectory(), bundleAuditArgs);
-            try (ProcessReader processReader = new ProcessReader(process, outputStore, errorStore, exceptionStore)) {
-                processReader.start();
-            }
-            final String error = errorStore.retrieve();
-            if (error != null) {
-                LOGGER.warn("Warnings from bundle-audit {}", error);
-            }
-            exceptionStore.checkException();
-
-            bundleAuditVersionDetails = outputStore.retrieve();
-            final int exitValue = process.exitValue();
-            if (exitValue != 0) {
-                setEnabled(false);
-                final String msg = String.format("bundle-audit execution failed - "
-                        + "exit code: %d; error: %s ", exitValue, error);
-                throw new InitializationException(msg);
+            try (ProcessReader processReader = new ProcessReader(process)) {
+                processReader.readAll();
+                final String error = processReader.getError();
+                if (error != null) {
+                    LOGGER.warn("Warnings from bundle-audit {}", error);
+                }
+                bundleAuditVersionDetails = processReader.getOutput();
+                final int exitValue = process.exitValue();
+                if (exitValue != 0) {
+                    setEnabled(false);
+                    final String msg = String.format("bundle-audit execution failed - "
+                            + "exit code: %d; error: %s ", exitValue, error);
+                    throw new InitializationException(msg);
+                }
             }
         } catch (AnalysisException ae) {
             setEnabled(false);
@@ -286,22 +278,15 @@ public class RubyBundleAuditAnalyzer extends AbstractFileTypeAnalyzer {
         final List<String> bundleAuditArgs = ImmutableList.of("check", "--verbose");
 
         final Process process = launchBundleAudit(parentFile, bundleAuditArgs);
-        final Store<String> errorConsumer = new Store<>();
-        final ExceptionStore<IOException> exceptionConsumer = new ExceptionStore<>();
-        final BundlerAuditProcessor processor = new BundlerAuditProcessor(dependency, engine);
-        try {
-            try (ProcessReader processReader = new ProcessReader(process, errorConsumer,
-                    exceptionConsumer, processor)) {
-                processReader.start();
-            }
-            final String error = errorConsumer.retrieve();
+        try (BundlerAuditProcessor processor = new BundlerAuditProcessor(dependency, engine);
+                ProcessReader processReader = new ProcessReader(process, processor)) {
+
+            processReader.readAll();
+            final String error = processReader.getError();
             if (error != null) {
                 LOGGER.warn("Warnings from bundle-audit {}", error);
             }
-            exceptionConsumer.checkException();
-            processor.checkException();
-            final int exitValue;
-            exitValue = process.exitValue();
+            final int exitValue = process.exitValue();
             if (exitValue < 0 || exitValue > 1) {
                 final String msg = String.format("Unexpected exit code from bundle-audit "
                         + "process; exit code: %s", exitValue);

@@ -85,17 +85,17 @@ public class BundlerAuditProcessor extends Processor<InputStream> {
     public BundlerAuditProcessor(Dependency gemDependency, Engine engine) {
         this.gemDependency = gemDependency;
         this.engine = engine;
-
     }
 
     /**
-     * Throws any cached exceptions.
+     * Throws any exceptions that occurred during processing.
      *
      * @throws IOException thrown if an IO Exception occurred
      * @throws CpeValidationException thrown if a CPE validation exception
      * occurred
      */
-    public void checkException() throws IOException, CpeValidationException {
+    @Override
+    public void close() throws IOException, CpeValidationException {
         if (ioException != null) {
             throw ioException;
         }
@@ -115,7 +115,7 @@ public class BundlerAuditProcessor extends Processor<InputStream> {
         final Map<String, Dependency> map = new HashMap<>();
         boolean appendToDescription = false;
 
-        try (InputStreamReader ir = new InputStreamReader(retrieve(), StandardCharsets.UTF_8);
+        try (InputStreamReader ir = new InputStreamReader(getInput(), StandardCharsets.UTF_8);
                 BufferedReader br = new BufferedReader(ir)) {
 
             while (br.ready()) {
@@ -315,5 +315,4 @@ public class BundlerAuditProcessor extends Processor<InputStream> {
         engine.addDependency(dependency);
         return dependency;
     }
-
 }

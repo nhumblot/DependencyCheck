@@ -24,6 +24,44 @@ package org.owasp.dependencycheck.utils.processing;
  * @author Jeremy Long
  * @param <T> the type of processor
  */
-public abstract class Processor<T> extends Store<T> implements Runnable {
+public abstract class Processor<T> implements Runnable, AutoCloseable {
 
+    /**
+     * Stores the value.
+     */
+    private T input;
+
+    /**
+     * Creates a new processor.
+     */
+    public Processor() {
+        //empty constructor
+    }
+
+    /**
+     * Creates a new processor.
+     *
+     * @param input the input to process
+     */
+    public Processor(T input) {
+        this.input = input;
+    }
+
+    /**
+     * Sets the input to process.
+     *
+     * @param input the input to process
+     */
+    public void setInput(T input) {
+        this.input = input;
+    }
+
+    /**
+     * Retrieves a reference to the input.
+     *
+     * @return a reference to the input
+     */
+    protected T getInput() {
+        return input;
+    }
 }

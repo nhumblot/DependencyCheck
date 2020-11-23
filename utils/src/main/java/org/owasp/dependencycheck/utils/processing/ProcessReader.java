@@ -36,7 +36,6 @@ public class ProcessReader implements AutoCloseable {
      * A reference to the process that will be read.
      */
     private final Process process;
-
     /**
      * Reader for the error stream.
      */
@@ -50,19 +49,6 @@ public class ProcessReader implements AutoCloseable {
      */
     private Processor<InputStream> processor = null;
     /**
-     * Output store for the data read from the input stream; only used when
-     * there is no external processor provided.
-     */
-    private Store<String> outputStore;
-    /**
-     * Output store for the data read from the error stream.
-     */
-    private final Store<String> errorStore;
-    /**
-     * Output store for any IO Exceptions thrown during processing.
-     */
-    private final ExceptionStore<IOException> exceptionStore;
-    /**
      * A list of threads that were started.
      */
     private final List<Thread> threads = new ArrayList<>();
@@ -72,13 +58,9 @@ public class ProcessReader implements AutoCloseable {
      * is written to the provided stores.
      *
      * @param process the process to read from
-     * @param output receives the content from the output stream
-     * @param error receives the content of the error stream
-     * @param exception receive any exceptions thrown during processing
      */
-    public ProcessReader(Process process, Store<String> output, Store<String> error, ExceptionStore<IOException> exception) {
-        this(process, error, exception, null);
-        this.outputStore = output;
+    public ProcessReader(Process process) {
+        this(process, null);
     }
 
     /**
@@ -86,33 +68,65 @@ public class ProcessReader implements AutoCloseable {
      * is written to the provided stores.
      *
      * @param process the process to read from
-     * @param error receives the content of the error stream
-     * @param exception receive any exceptions thrown during processing
      * @param processor used to process the input stream from the process
      */
-    public ProcessReader(Process process, Store<String> error, ExceptionStore<IOException> exception, Processor<InputStream> processor) {
+    public ProcessReader(Process process, Processor<InputStream> processor) {
         this.process = process;
         this.processor = processor;
-        this.outputStore = null;
-        this.errorStore = error;
-        this.exceptionStore = exception;
+    }
+
+    /**
+     * Returns the error stream output from the process.
+     *
+     * @return the error stream output
+     */
+    public String getError() {
+        return errorGobbler.getText();
+    }
+
+    /**
+     * Returns the output from standard out from the process.
+     *
+     * @return the output from standard out from the process
+     */
+    public String getOutput() {
+        return inputGobbler != null ? inputGobbler.getText() : null;
+    }
+
+    /**
+     * Reads the standard output and standard error from the process and waits
+     * for the process to complete.
+     *
+     * @throws InterruptedException thrown if the processing threads are
+     * interrupted
+     * @throws IOException thrown if there is an error reading from the process
+     */
+    public void readAll() throws InterruptedException, IOException {
+        start();
+        close();
     }
 
     /**
      * Starts the processing of the `process`.
      */
-    public void start() {
+    private void start() {
         errorGobbler = new Gobbler(process.getErrorStream());
         startProcessor(errorGobbler);
-        if (outputStore != null) {
+        if (processor == null) {
             inputGobbler = new Gobbler(process.getInputStream());
             startProcessor(inputGobbler);
-        } else if (processor != null) {
-            processor.put(process.getInputStream());
+        } else {
+            processor.setInput(process.getInputStream());
             startProcessor(processor);
         }
     }
 
+    /**
+     * Starts the process in its own thread and collects the threads so `join`
+     * can be called later to ensure the thread finishes.
+     *
+     * @param p a reference to the processor to start.
+     */
     private void startProcessor(Processor p) {
         if (p != null) {
             final Thread t = new Thread(p);
@@ -121,21 +135,27 @@ public class ProcessReader implements AutoCloseable {
         }
     }
 
+    /**
+     * Waits for the process and related threads to complete.
+     *
+     * @throws InterruptedException thrown if the processing threads are
+     * interrupted
+     * @throws IOException thrown if there was an error reading from the process
+     */
     @Override
-    public void close() throws InterruptedException {
-        process.waitFor();
-        for (Thread thread : threads) {
-            thread.join();
+    public void close() throws InterruptedException, IOException {
+        if (process.isAlive()) {
+            process.waitFor();
         }
-        errorStore.put(errorGobbler.getText());
-        if (errorGobbler.getException() != null) {
-            exceptionStore.put(errorGobbler.getException());
-        } else if (inputGobbler != null && inputGobbler.getException() != null) {
-            exceptionStore.put(inputGobbler.getException());
+        if (threads.size() > 0) {
+            for (Thread thread : threads) {
+                thread.join();
+            }
+            threads.clear();
         }
-        errorStore.put(errorGobbler.getText());
-        if (outputStore != null) {
-            outputStore.put(inputGobbler.getText());
+        errorGobbler.close();
+        if (inputGobbler != null) {
+            inputGobbler.close();
         }
     }
 
@@ -151,13 +171,13 @@ public class ProcessReader implements AutoCloseable {
         private String text;
 
         Gobbler(InputStream inputStream) {
-            put(inputStream);
+            super(inputStream);
         }
 
         @Override
         public void run() {
             try {
-                final InputStream inputStream = retrieve();
+                final InputStream inputStream = getInput();
                 if (inputStream.available() > 0) {
                     text = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
                 }
@@ -167,12 +187,15 @@ public class ProcessReader implements AutoCloseable {
             }
         }
 
-        public IOException getException() {
-            return exception;
-        }
-
         public String getText() {
             return text;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (exception != null) {
+                throw exception;
+            }
         }
     }
 }
