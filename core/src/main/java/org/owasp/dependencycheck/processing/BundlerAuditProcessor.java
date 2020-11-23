@@ -82,6 +82,12 @@ public class BundlerAuditProcessor extends Processor<InputStream> {
      */
     private CpeValidationException cpeException;
 
+    /**
+     * Constructs a new processor to consume the output of `bundler-audit`.
+     *
+     * @param gemDependency a reference to `gem.lock` dependency
+     * @param engine a reference to the dependency-check engine
+     */
     public BundlerAuditProcessor(Dependency gemDependency, Engine engine) {
         this.gemDependency = gemDependency;
         this.engine = engine;
