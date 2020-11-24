@@ -159,7 +159,7 @@ public class ProcessReader implements AutoCloseable {
         }
     }
 
-    class Gobbler extends Processor<InputStream> {
+    static class Gobbler extends Processor<InputStream> {
 
         /**
          * A store for an exception - if one is thrown during processing.
