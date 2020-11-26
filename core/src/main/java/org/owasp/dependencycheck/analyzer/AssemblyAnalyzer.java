@@ -473,15 +473,14 @@ public class AssemblyAnalyzer extends AbstractFileTypeAnalyzer {
         final ProcessBuilder pb = new ProcessBuilder(args);
         try {
             final Process proc = pb.start();
-            final int retCode = proc.waitFor();
-            if (retCode == 0) {
-                return true;
-            }
-            final byte[] version = new byte[50];
-            final int read = proc.getInputStream().read(version);
-            if (read > 0) {
-                final String v = new String(version, UTF_8);
-                if (v.length() > 0) {
+            try (ProcessReader processReader = new ProcessReader(proc)) {
+                processReader.readAll();
+                final int exitValue = proc.exitValue();
+                if (exitValue == 0) {
+                    return true;
+                }
+                final String output = processReader.getOutput();
+                if (output.length() > 0) {
                     return true;
                 }
             }
