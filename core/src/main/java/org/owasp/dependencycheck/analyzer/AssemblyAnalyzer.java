@@ -25,8 +25,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import org.owasp.dependencycheck.Engine;
 import org.owasp.dependencycheck.analyzer.exception.AnalysisException;
 import org.owasp.dependencycheck.dependency.Confidence;

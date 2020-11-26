@@ -24,8 +24,9 @@ import org.owasp.dependencycheck.xml.assembly.GrokParseException;
 import org.owasp.dependencycheck.xml.assembly.GrokParser;
 
 /**
+ * Processor for the output of GrokAssembly.exe.
  *
- * @author jeremy
+ * @author Jeremy Long
  */
 public class GrokAssemblyProcessor extends Processor<InputStream> {
 
@@ -53,7 +54,7 @@ public class GrokAssemblyProcessor extends Processor<InputStream> {
         try {
             assemblyData = grok.parse(getInput());
         } catch (GrokParseException ex) {
-            throw new RuntimeException(ex);
+            exception = ex;
         }
     }
 

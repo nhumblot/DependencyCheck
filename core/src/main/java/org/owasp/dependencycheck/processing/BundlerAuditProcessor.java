@@ -103,6 +103,7 @@ public class BundlerAuditProcessor extends Processor<InputStream> {
     @Override
     public void close() throws IOException, CpeValidationException {
         if (ioException != null) {
+            addSuppressedExceptions(ioException, cpeException);
             throw ioException;
         }
         if (cpeException != null) {

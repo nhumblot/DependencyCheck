@@ -64,4 +64,19 @@ public abstract class Processor<T> implements Runnable, AutoCloseable {
     protected T getInput() {
         return input;
     }
+
+    /**
+     * Adds any non-null exceptions in the `suppress` list to the suppressed
+     * exceptions on the main exception `ex`.
+     *
+     * @param ex the main exception that suppressed exceptions will be added
+     * @param suppress one or more exceptions that will be added as suppressed
+     */
+    protected void addSuppressedExceptions(Throwable ex, Throwable... suppress) {
+        for (Throwable e : suppress) {
+            if (e != null) {
+                ex.addSuppressed(e);
+            }
+        }
+    }
 }
