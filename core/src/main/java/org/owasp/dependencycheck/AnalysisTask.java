@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -108,7 +109,9 @@ public class AnalysisTask implements Callable<Void> {
     protected boolean shouldAnalyze() {
         if (analyzer instanceof FileTypeAnalyzer) {
             final FileTypeAnalyzer fileTypeAnalyzer = (FileTypeAnalyzer) analyzer;
-            return fileTypeAnalyzer.accept(dependency.getActualFile());
+
+            return Objects.nonNull(dependency.getActualFilePath())
+                    && fileTypeAnalyzer.accept(dependency.getActualFile());
         }
         return true;
     }
