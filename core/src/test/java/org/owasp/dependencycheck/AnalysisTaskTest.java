@@ -39,7 +39,6 @@ public class AnalysisTaskTest extends BaseTest {
         new Expectations() {{
             dependency.getActualFilePath();
             result = actualFilePath;
-            minTimes = 0;
 
             dependency.getActualFile();
             result = dependencyFile;
@@ -61,7 +60,6 @@ public class AnalysisTaskTest extends BaseTest {
         new Expectations() {{
             dependency.getActualFilePath();
             result = actualFilePath;
-            minTimes = 0;
 
             dependency.getActualFile();
             result = dependencyFile;
@@ -82,7 +80,6 @@ public class AnalysisTaskTest extends BaseTest {
         new Expectations() {{
             dependency.getActualFilePath();
             result = null;
-            minTimes = 0;
 
             dependency.getActualFile();
             result = new NullPointerException();
