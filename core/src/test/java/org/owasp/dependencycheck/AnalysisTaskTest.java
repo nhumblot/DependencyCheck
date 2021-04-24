@@ -67,6 +67,23 @@ public class AnalysisTaskTest extends BaseTest {
     }
 
     @Test
+    public void shouldAnalyzeReturnsFalseIfTheActualFilePathIsNullToPreventNullPointerException() {
+        // Given
+        new Expectations() {{
+            dependency.getActualFile();
+            result = new NullPointerException();
+        }};
+
+        AnalysisTask analysisTask = new AnalysisTask(fileTypeAnalyzer, dependency, null, null);
+
+        // When
+        boolean shouldAnalyze = analysisTask.shouldAnalyze();
+
+        // Then
+        assertFalse(shouldAnalyze);
+    }
+
+    @Test
     public void taskAnalyzes() throws Exception {
         final AnalysisTask analysisTask = new AnalysisTask(fileTypeAnalyzer, dependency, engine, null);
         new Expectations(analysisTask) {{
