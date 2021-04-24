@@ -34,8 +34,13 @@ public class AnalysisTaskTest extends BaseTest {
 
     @Test
     public void shouldAnalyzeReturnsTrueIfTheFileTypeAnalyzersAcceptsTheDependency() {
-        final File dependencyFile = new File("");
+        String actualFilePath = "";
+        final File dependencyFile = new File(actualFilePath);
         new Expectations() {{
+            dependency.getActualFilePath();
+            result = actualFilePath;
+            minTimes = 0;
+
             dependency.getActualFile();
             result = dependencyFile;
 
@@ -51,8 +56,13 @@ public class AnalysisTaskTest extends BaseTest {
 
     @Test
     public void shouldAnalyzeReturnsFalseIfTheFileTypeAnalyzerDoesNotAcceptTheDependency() {
-        final File dependencyFile = new File("");
+        String actualFilePath = "";
+        final File dependencyFile = new File(actualFilePath);
         new Expectations() {{
+            dependency.getActualFilePath();
+            result = actualFilePath;
+            minTimes = 0;
+
             dependency.getActualFile();
             result = dependencyFile;
 
@@ -70,8 +80,13 @@ public class AnalysisTaskTest extends BaseTest {
     public void shouldAnalyzeReturnsFalseIfTheActualFilePathIsNullToPreventNullPointerException() {
         // Given
         new Expectations() {{
+            dependency.getActualFilePath();
+            result = null;
+            minTimes = 0;
+
             dependency.getActualFile();
             result = new NullPointerException();
+            minTimes = 0;
         }};
 
         AnalysisTask analysisTask = new AnalysisTask(fileTypeAnalyzer, dependency, null, null);
