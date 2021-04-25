@@ -211,6 +211,38 @@ public class DependencyMergingAnalyzerTest extends BaseTest {
         assertEquals(expResult, result);
     }
 
+    @Test
+    public void testIsSameSwiftPackageMustHandleNullFileNameOfDependency1() {
+        // Given
+        Dependency dependency1 = new Dependency();
+        Dependency dependency2 = new Dependency();
+
+        DependencyMergingAnalyzer instance = new DependencyMergingAnalyzer();
+
+        // When
+        boolean output = instance.isSameSwiftPackage(dependency1, dependency2);
+
+        // Then
+        assertFalse(output);
+    }
+
+    @Test
+    public void testIsSameSwiftPackageMustHandleNullFileNameOfDependency2() {
+        // Given
+        Dependency dependency1 = new Dependency(new File("Package.swift"), true);
+        dependency1.setPackagePath("path1");
+
+        Dependency dependency2 = new Dependency();
+
+        DependencyMergingAnalyzer instance = new DependencyMergingAnalyzer();
+
+        // When
+        boolean output = instance.isSameSwiftPackage(dependency1, dependency2);
+
+        // Then
+        assertFalse(output);
+    }
+
     /**
      * Test of getMainSwiftDependency method, of class
      * DependencyMergingAnalyzer.

@@ -215,6 +215,8 @@ public class DependencyMergingAnalyzer extends AbstractDependencyComparingAnalyz
      */
     protected boolean isSameSwiftPackage(Dependency dependency1, Dependency dependency2) {
         if (dependency1 == null || dependency2 == null
+                || dependency1.getFileName() == null
+                || dependency2.getFileName() == null
                 || (!dependency1.getFileName().endsWith(".podspec")
                 && !dependency1.getFileName().equals("Package.swift"))
                 || (!dependency2.getFileName().endsWith(".podspec")
