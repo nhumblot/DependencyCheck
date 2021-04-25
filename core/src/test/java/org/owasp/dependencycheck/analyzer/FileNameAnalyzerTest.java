@@ -18,11 +18,14 @@
 package org.owasp.dependencycheck.analyzer;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.owasp.dependencycheck.BaseTest;
+import org.owasp.dependencycheck.analyzer.exception.AnalysisException;
 import org.owasp.dependencycheck.dependency.Dependency;
 import org.owasp.dependencycheck.dependency.EvidenceType;
 import org.owasp.dependencycheck.exception.InitializationException;
@@ -101,5 +104,29 @@ public class FileNameAnalyzerTest extends BaseTest {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+    }
+
+    @Test
+    public void testAnalyzeDependencyMustHandleDependencyWithoutActualFilePath() throws AnalysisException {
+        // Given
+        FileNameAnalyzer analyzer = new FileNameAnalyzer();
+
+        AtomicReference<Boolean> isActualFilePathCalled = new AtomicReference<>(false);
+
+        Dependency dependency = new Dependency() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public String getActualFilePath() {
+                isActualFilePathCalled.set(true);
+                return super.getActualFilePath();
+            }
+        };
+
+        // When
+        analyzer.analyzeDependency(dependency, null);
+
+        // Then
+        assertTrue(isActualFilePathCalled.get());
     }
 }

@@ -18,6 +18,8 @@
 package org.owasp.dependencycheck.analyzer;
 
 import java.io.File;
+import java.util.Objects;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.io.FilenameUtils;
@@ -115,6 +117,9 @@ public class FileNameAnalyzer extends AbstractAnalyzer {
     @Override
     protected void analyzeDependency(Dependency dependency, Engine engine) throws AnalysisException {
         //strip any path information that may get added by ArchiveAnalyzer, etc.
+        if (Objects.isNull(dependency.getActualFilePath())) {
+            return;
+        }
         final File f = dependency.getActualFile();
         final String fileName = FilenameUtils.removeExtension(f.getName());
         final String ext = FilenameUtils.getExtension(f.getName());
