@@ -21,6 +21,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -217,7 +219,10 @@ public class ExceptionCollection extends Exception {
     }
 
     private static StringBuilder nestedCauseList(Throwable t) {
-        final StringBuilder sb = new StringBuilder(t.getMessage());
+        final StringBuilder sb = Optional.ofNullable(t.getMessage())
+                .map(StringBuilder::new)
+                .orElseGet(StringBuilder::new);
+
         Throwable nestedCause = t.getCause();
         while (nestedCause != null) {
             sb.append("\n\t\tcaused by ").append(nestedCause.getClass().getSimpleName()).append(": ").append(nestedCause.getMessage());
