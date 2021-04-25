@@ -164,6 +164,8 @@ public class DependencyMergingAnalyzer extends AbstractDependencyComparingAnalyz
      */
     protected boolean isSameRubyGem(Dependency dependency1, Dependency dependency2) {
         if (dependency1 == null || dependency2 == null
+                || dependency1.getFileName() == null
+                || dependency2.getFileName() == null
                 || !dependency1.getFileName().endsWith(".gemspec")
                 || !dependency2.getFileName().endsWith(".gemspec")
                 || dependency1.getPackagePath() == null

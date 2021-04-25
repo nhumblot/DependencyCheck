@@ -129,6 +129,38 @@ public class DependencyMergingAnalyzerTest extends BaseTest {
         assertEquals(expResult, result);
     }
 
+    @Test
+    public void testIsSameRubyGemMustHandleNullFileNameOfDependency1() {
+        // Given
+        Dependency dependency1 = new Dependency();
+        Dependency dependency2 = new Dependency();
+
+        DependencyMergingAnalyzer instance = new DependencyMergingAnalyzer();
+
+        // When
+        boolean output = instance.isSameRubyGem(dependency1, dependency2);
+
+        // Then
+        assertFalse(output);
+    }
+
+    @Test
+    public void testIsSameRubyGemMustHandleNullFileNameOfDependency2() {
+        // Given
+        Dependency dependency1 = new Dependency(new File("some.gemspec"), true);
+        dependency1.setPackagePath("path1");
+
+        Dependency dependency2 = new Dependency();
+
+        DependencyMergingAnalyzer instance = new DependencyMergingAnalyzer();
+
+        // When
+        boolean output = instance.isSameRubyGem(dependency1, dependency2);
+
+        // Then
+        assertFalse(output);
+    }
+
     /**
      * Test of getMainGemspecDependency method, of class
      * DependencyMergingAnalyzer.
