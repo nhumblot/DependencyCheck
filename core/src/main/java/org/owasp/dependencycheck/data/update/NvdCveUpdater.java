@@ -355,7 +355,10 @@ public class NvdCveUpdater implements CachedWebDataSource {
     }
 
     String getMetaUrl(String url) {
-        return url.substring(0, url.length() - 7) + "meta";
+        int lastOccurence = url.lastIndexOf('.');
+        int secondLastOccurence = url.lastIndexOf('.', lastOccurence - 1);
+
+        return url.substring(0, secondLastOccurence + 1) + "meta";
     }
 
     /**
