@@ -335,7 +335,7 @@ public class NvdCveUpdater implements CachedWebDataSource {
      * @throws UpdateException thrown if the meta file could not be downloaded
      */
     protected final MetaProperties getMetaFile(String url) throws UpdateException {
-        final String metaUrl = url.substring(0, url.length() - 7) + "meta";
+        final String metaUrl = getMetaUrl(url);
         try {
             final URL u = new URL(metaUrl);
             final Downloader d = new Downloader(settings);
@@ -352,6 +352,10 @@ public class NvdCveUpdater implements CachedWebDataSource {
         } catch (ResourceNotFoundException ex) {
             throw new UpdateException("Unable to download meta file: " + metaUrl + "; received 404 -- resource not found", ex);
         }
+    }
+
+    String getMetaUrl(String url) {
+        return url.substring(0, url.length() - 7) + "meta";
     }
 
     /**
