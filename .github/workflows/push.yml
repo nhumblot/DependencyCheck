@@ -30,4 +30,4 @@ jobs:
       - name: Build with Maven
         id: build
         run: |
-            mvn -s settings.xml clean package verify site -DreleaseTesting --no-transfer-progress --batch-mode
+            mvn -s settings.xml clean package verify site -DreleaseTesting --no-transfer-progress --batch-mode -X
