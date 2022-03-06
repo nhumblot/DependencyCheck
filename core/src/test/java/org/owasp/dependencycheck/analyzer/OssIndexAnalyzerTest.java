@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.owasp.dependencycheck.BaseTest;
 import org.owasp.dependencycheck.Engine;
@@ -29,7 +28,6 @@ import org.sonatype.ossindex.service.client.transport.Transport;
 public class OssIndexAnalyzerTest extends BaseTest {
 
     @Test
-    @Ignore
     public void should_enrich_be_included_in_mutex_to_prevent_NPE()
             throws AnalysisException, MalformedPackageURLException {
 
