@@ -87,9 +87,10 @@ public class OssIndexAnalyzerTest extends BaseTest {
     }
 
     @Test
-    public void should_analyzeDependency_return_a_dedicated_error_message_when_403_response_from_sonatype() throws MalformedPackageURLException {
+    public void should_analyzeDependency_return_a_dedicated_error_message_when_403_response_from_sonatype() throws Exception {
         // Given
         OssIndexAnalyzer analyzer = new OssIndexAnalyzerThrowing403();
+        analyzer.close();
         analyzer.initialize(getSettings());
 
         Identifier identifier = new PurlIdentifier("maven", "test", "test", "1.0",
