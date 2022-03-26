@@ -20,7 +20,7 @@ community include third party libraries in our applications that contain well
 known published vulnerabilities \(such as those at the
 [National Vulnerability Database](http://web.nvd.nist.gov/view/vuln/search)\).
 
-More information about dependency-check can be found here:
+More information about dependency-check can be found here:test
 
 * [How does dependency-check work](general/internals.html)
 * [How to read the report](general/thereport.html)
